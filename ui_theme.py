@@ -14,7 +14,6 @@ _CSS = """
 :root {
     --noerok: #4fa896;
     --noerok-light: #7ec9b8;
-    --noerok-pale: #a9dccf;
     --noerok-deep: #2f6b60;
     --juchil: #c8503f;
     --meok: #0d1719;
@@ -59,16 +58,11 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
     text-align: center;
     font-size: 1.9rem;
     letter-spacing: .03em;
-    /* 그라디언트 아래끝이 배경과 대비 3:1 이라 받침이 묻혔다.
-       두 줄로 넘어가면 둘째 줄이 통째로 어두운 절반을 받아 더 심했다.
-       밝은 구간만 쓰고, 한 줄마다 그라디언트를 다시 시작시킨다. */
-    background: linear-gradient(180deg, var(--noerok-pale), var(--noerok));
-    background-size: 100% 1.35em;
-    background-repeat: repeat;
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    filter: drop-shadow(0 2px 10px rgba(79, 168, 150, .3));
+    /* 글자를 그라디언트로 칠하지 않는다. 아래끝이 배경과 대비 3:1 이라
+       받침이 묻혔고, 줄마다 다시 시작시키니 이번엔 타일 이음매가
+       글자를 가로질렀다. 단색이면 두 문제가 다 사라진다. */
+    color: var(--noerok-light);
+    text-shadow: 0 2px 14px rgba(79, 168, 150, .28);
     margin-bottom: .3rem;
 }
 [data-testid="stHeading"] h1::before,
@@ -322,7 +316,6 @@ section[data-testid="stSidebar"] [data-testid="stHeading"] h1 {
     display: block;
     text-align: left;
     font-size: 1.02rem;
-    background-size: 100% 1.4em;
     letter-spacing: .01em;
     margin-bottom: .1rem;
     filter: none;
