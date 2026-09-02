@@ -4,6 +4,9 @@ import streamlit as st
 from game_logic import get_llm, get_current_event, get_gpt_hint, handle_choice, force_to_end_game, generate_next_event
 from game_state import (
     ROUTE_THRONE,
+    RANK_UP_REQUIREMENTS,
+    THRONE_GATE,
+    FOUND_GATE,
     ENDING_DEATH,
     ENDING_QUEEN,
     ENDING_PURGED,
@@ -76,12 +79,18 @@ def render_playing():
 
     set_scene_background(game_state["현재품계"], st.session_state.is_hidden)
 
+    if st.session_state.is_hidden:
+        goal = THRONE_GATE if game_state.get("루트") == ROUTE_THRONE else FOUND_GATE
+    else:
+        goal = RANK_UP_REQUIREMENTS.get(game_state["현재품계"])
+
     render_stat_plate(
         p["이름"],
         game_state["현재품계"],
         game_state["총애"],
         game_state["권세"],
         game_state["위험도"],
+        goal=goal,
     )
     render_rank_ladder(game_state["현재품계"])
 
@@ -193,7 +202,7 @@ def render_result():
 
 ENDING_VIEW = {
     ENDING_DEATH: ("error", "💀", "{name}의 이야기가 여기서 끝났습니다.", False),
-    ENDING_PURGED: ("error", "⚰️", "폐비 {name} — 사약이 내려졌습니다.", False),
+    ENDING_PURGED: ("error", "🥀", "폐비 {name} — 사약이 내려졌습니다.", False),
     ENDING_QUEEN: ("success", "👑", "중전 {name}", True),
     ENDING_THRONE: ("success", "⚡", "여왕 {name} — 조선 최초의 여왕", True),
     ENDING_FOUND: ("success", "🔥", "태조 {name} — 새 왕조를 열다", True),
