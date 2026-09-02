@@ -11,9 +11,9 @@ from parsing_json import JSONInvokeError
 
 load_dotenv()
 
-APP_TITLE = "👑 여왕이 되고 싶어"
+APP_TITLE = "👑 간택은 제가 하겠습니다, 전하"
 
-st.set_page_config(page_title="여왕이 되고 싶어", page_icon="👑", layout="centered")
+st.set_page_config(page_title="간택은 제가 하겠습니다, 전하", page_icon="👑", layout="centered")
 inject_theme()
 
 
