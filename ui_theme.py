@@ -1,3 +1,7 @@
+import base64
+from functools import lru_cache
+from pathlib import Path
+
 import streamlit as st
 
 _CSS = """
@@ -10,6 +14,7 @@ _CSS = """
 :root {
     --noerok: #4fa896;
     --noerok-light: #7ec9b8;
+    --noerok-pale: #a9dccf;
     --noerok-deep: #2f6b60;
     --juchil: #c8503f;
     --meok: #0d1719;
@@ -52,9 +57,14 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
     justify-content: center;
     gap: .9rem;
     text-align: center;
-    font-size: 2.15rem;
-    letter-spacing: .04em;
-    background: linear-gradient(180deg, var(--noerok-light), var(--noerok-deep));
+    font-size: 1.9rem;
+    letter-spacing: .03em;
+    /* 그라디언트 아래끝이 배경과 대비 3:1 이라 받침이 묻혔다.
+       두 줄로 넘어가면 둘째 줄이 통째로 어두운 절반을 받아 더 심했다.
+       밝은 구간만 쓰고, 한 줄마다 그라디언트를 다시 시작시킨다. */
+    background: linear-gradient(180deg, var(--noerok-pale), var(--noerok));
+    background-size: 100% 1.35em;
+    background-repeat: repeat;
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -262,6 +272,30 @@ section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"] {
     color: #e0705c;
 }
 
+.stat-meter {
+    height: 2px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, .09);
+    margin-top: .35rem;
+    overflow: hidden;
+}
+.stat-meter i {
+    display: block;
+    height: 100%;
+    background: var(--noerok);
+}
+.stat-meter i.danger { background: var(--juchil); }
+.stat-goal {
+    display: block;
+    font-size: .58rem;
+    color: var(--hanji-dim);
+    margin-top: .3rem;
+    letter-spacing: .02em;
+}
+.stat-goal.reached { color: var(--noerok-light); }
+.stat-goal.danger { color: var(--juchil); }
+
+
 /* ---- 단청 창살 문양 ----
    조선 궁궐 완자살(卍字) 창살을 옅게 깔아 글자만 있는 화면을 면한다. */
 [data-testid="stAppViewContainer"]::before {
@@ -288,6 +322,7 @@ section[data-testid="stSidebar"] [data-testid="stHeading"] h1 {
     display: block;
     text-align: left;
     font-size: 1.02rem;
+    background-size: 100% 1.4em;
     letter-spacing: .01em;
     margin-bottom: .1rem;
     filter: none;
@@ -378,6 +413,16 @@ section[data-testid="stSidebar"] [data-testid="stHeading"] h3 {
     opacity: .8;
 }
 
+/* ---- 엔딩 일러스트 ---- */
+.ending-art {
+    width: 100%;
+    border-radius: 10px;
+    border: 1px solid var(--noerok-deep);
+    display: block;
+    margin: .2rem 0 1rem;
+    box-shadow: 0 6px 26px rgba(0, 0, 0, .5);
+}
+
 /* ---- 문안 촛불 ---- */
 .candles {
     font-size: .95rem;
@@ -399,7 +444,42 @@ def inject_theme():
     st.markdown(_CSS, unsafe_allow_html=True)
 
 
-def render_stat_plate(name: str, rank: str, love, power, danger):
+def _stat_cell(label: str, value: int, target: int, note: str, danger: bool = False):
+    """스탯 하나. 목표 대비 어디쯤인지와 남은 양을 같이 보여준다."""
+    pct = 0 if not target else min(100, round(value * 100 / target))
+    hot = " danger" if danger else ""
+    return (
+        f'<div class="stat-item">'
+        f'<span class="stat-label">{label}</span>'
+        f'<span class="stat-value{hot}">{value}</span>'
+        f'<span class="stat-meter"><i class="{hot.strip()}" style="width:{pct}%"></i></span>'
+        f'<span class="stat-goal{hot if danger else (" reached" if value >= target else "")}">{note}</span>'
+        f"</div>"
+    )
+
+
+def render_stat_plate(name: str, rank: str, love, power, danger, goal: dict = None):
+    """주인공 정보판. goal 이 있으면 다음 관문까지 얼마나 남았는지 같이 보여준다."""
+    goal = goal or {}
+    love_target = goal.get("총애", 100)
+    power_target = goal.get("권세", 100)
+    risk_max = goal.get("위험도_max", 95)
+    risk_min = goal.get("위험도_min", 0)
+
+    love_note = "달성" if love >= love_target else f"승급까지 {love_target - love}"
+    power_note = "달성" if power >= power_target else f"승급까지 {power_target - power}"
+    if risk_min:
+        # 개국 관문은 위험도가 일정 수준 이상이어야 열린다
+        risk_note = f"필요 {risk_min}~{min(risk_max, 100)}"
+    else:
+        risk_note = f"한계 {min(risk_max, 100)}"
+
+    cells = (
+        _stat_cell("총애", love, love_target, love_note)
+        + _stat_cell("권세", power, power_target, power_note)
+        + _stat_cell("위험도", danger, 100, risk_note, danger=danger >= min(risk_max, 95) - 10)
+    )
+
     st.markdown(
         f"""
         <div class="stat-plate">
@@ -407,20 +487,7 @@ def render_stat_plate(name: str, rank: str, love, power, danger):
                 <div class="stat-plate-name">🙋 {name}</div>
                 <div class="stat-plate-rank">{rank}</div>
             </div>
-            <div class="stat-plate-grid">
-                <div class="stat-item">
-                    <span class="stat-label">총애</span>
-                    <span class="stat-value">{love}</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">권세</span>
-                    <span class="stat-value">{power}</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">위험도</span>
-                    <span class="stat-value danger">{danger}</span>
-                </div>
-            </div>
+            <div class="stat-plate-grid">{cells}</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -468,5 +535,71 @@ def render_audience_candles(left: int, total: int):
     st.markdown(
         f'<div class="candles">{lit}{out}</div>'
         f'<div class="candles-label">오늘의 문안 {left} / {total}회</div>',
+        unsafe_allow_html=True,
+    )
+
+
+# 품계와 루트에 맞는 배경. assets/bg/ 의 파일 이름과 같다.
+SCENE_BY_RANK = {
+    "숙원": "처소", "소원": "처소",
+    "숙용": "후원", "소용": "후원",
+    "숙의": "산실청",
+    "소의": "정전", "귀인": "정전",
+    "빈": "교태전", "중전": "교태전",
+}
+HIDDEN_SCENE = "옥좌"
+
+ASSET_DIR = Path(__file__).resolve().parent / "assets"
+
+
+@lru_cache(maxsize=32)
+def _data_uri(path_str: str) -> str:
+    """이미지를 data URI 로 읽어 둔다. 파일이 없으면 빈 문자열."""
+    path = Path(path_str)
+    if not path.exists():
+        return ""
+    encoded = base64.b64encode(path.read_bytes()).decode()
+    return f"data:image/webp;base64,{encoded}"
+
+
+def scene_name(rank: str, hidden: bool) -> str:
+    return HIDDEN_SCENE if hidden else SCENE_BY_RANK.get(rank, "처소")
+
+
+def set_scene_background(rank: str, hidden: bool = False):
+    """장면 배경을 화면 뒤에 깐다. 에셋이 없으면 창살 문양만 남는다."""
+    uri = _data_uri(str(ASSET_DIR / "bg" / f"{scene_name(rank, hidden)}.webp"))
+    if not uri:
+        return
+
+    # 글자가 읽혀야 하므로 어두운 그라디언트를 한 겹 덮는다
+    st.markdown(
+        f"""
+        <style>
+        [data-testid="stAppViewContainer"]::after {{
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background-image:
+                linear-gradient(rgba(13, 23, 25, .62), rgba(13, 23, 25, .82)),
+                url("{uri}");
+            background-size: cover;
+            background-position: center;
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_ending_art(ending_type: str):
+    """엔딩 일러스트. 없으면 조용히 건너뛴다."""
+    uri = _data_uri(str(ASSET_DIR / "ending" / f"{ending_type}.webp"))
+    if not uri:
+        return
+    st.markdown(
+        f'<img class="ending-art" src="{uri}" alt="">',
         unsafe_allow_html=True,
     )
