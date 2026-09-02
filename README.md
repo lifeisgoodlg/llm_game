@@ -167,6 +167,19 @@ OPENAI_API_KEY=your-key-here
 streamlit run app.py
 ```
 
+### 장면 이미지 (선택)
+
+배경과 엔딩 일러스트를 한 번만 생성해 `assets/` 에 저장합니다. 게임 중에는
+이미지를 만들지 않으므로 런타임 비용과 지연이 없습니다. 없어도 게임은
+그대로 돌아가고, 배경 자리에는 CSS 창살 문양만 남습니다.
+
+```bash
+python scripts/generate_assets.py
+```
+
+프롬프트는 `scripts/generate_assets.py` 안에 있습니다. 톤이 마음에 들지 않으면
+고쳐서 `--only 옥좌` 처럼 일부만 다시 뽑을 수 있습니다.
+
 ## 파일 구조
 
 | 파일 | 역할 |
@@ -181,6 +194,7 @@ streamlit run app.py
 | `ui_sidebar.py` | 인물 목록, 문안 대화 |
 | `ui_theme.py` | 커스텀 CSS |
 | `balance_sim.py` | 밸런스 시뮬레이터 (게임에 포함되지 않음) |
+| `scripts/generate_assets.py` | 장면 배경·엔딩 일러스트 생성 (1회) |
 
 ## 앞으로
 

@@ -7,3 +7,4 @@ streamlit
 python-dotenv
 openai
 json5
+Pillow
