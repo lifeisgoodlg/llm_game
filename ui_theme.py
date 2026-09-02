@@ -6,7 +6,7 @@ import streamlit as st
 
 _CSS = """
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Nanum+Myeongjo:wght@400;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&display=swap');
 
 /* 조선 단청 팔레트.
    궁궐 단청의 바탕색은 금이 아니라 뇌록(磊碌)이라는 청록이고,
@@ -50,14 +50,15 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
 
 /* ---- Headings ---- */
 [data-testid="stHeading"] h1 {
-    font-family: 'Gowun Batang', 'Nanum Myeongjo', serif;
+    font-family: 'Nanum Myeongjo', serif;
+    font-weight: 800;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: .9rem;
     text-align: center;
-    font-size: 1.9rem;
-    letter-spacing: .03em;
+    font-size: 2rem;
+    letter-spacing: .02em;
     /* 글자를 그라디언트로 칠하지 않는다. 아래끝이 배경과 대비 3:1 이라
        받침이 묻혔고, 줄마다 다시 시작시키니 이번엔 타일 이음매가
        글자를 가로질렀다. 단색이면 두 문제가 다 사라진다. */
@@ -223,7 +224,8 @@ section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"] {
     margin-bottom: .7rem;
 }
 .stat-plate-name {
-    font-family: 'Gowun Batang', 'Nanum Myeongjo', serif;
+    font-family: 'Nanum Myeongjo', serif;
+    font-weight: 800;
     font-size: 1.3rem;
     color: var(--noerok-light);
 }
