@@ -2,6 +2,7 @@ import streamlit as st
 from npc_generator import generate_npc_dialogue
 from game_logic import get_llm
 from game_state import AUDIENCE_PER_STAGE, apply_relation_change
+from ui_theme import render_audience_candles
 
 # 관계 키 -> (아이콘, 기본 호칭, 대화 버튼 문구)
 NPC_VIEW = {
@@ -58,8 +59,7 @@ def render_npc_sidebar():
         st.divider()
 
         st.title("👥 궁중 인물")
-        st.caption(f"🕯️ 오늘의 문안 {left} / {AUDIENCE_PER_STAGE}회")
-        st.progress(left / AUDIENCE_PER_STAGE)
+        render_audience_candles(left, AUDIENCE_PER_STAGE)
         if not in_event:
             st.info("문안은 이야기를 진행하는 중에만 드릴 수 있습니다.")
         elif no_audience:
@@ -107,7 +107,7 @@ def render_npc_chat():
     st.subheader(f"{icon} {name}와의 대화")
     st.caption(f"{rel}/100")
     st.progress(rel / 100)
-    st.caption(f"🕯️ 남은 문안 {left} / {AUDIENCE_PER_STAGE}회")
+    render_audience_candles(left, AUDIENCE_PER_STAGE)
     st.divider()
 
     if rel_key not in st.session_state.npc_chat_history:
