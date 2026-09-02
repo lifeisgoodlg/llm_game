@@ -54,7 +54,7 @@ def render_npc_sidebar():
     no_audience = left <= 0 or not in_event
 
     with st.sidebar:
-        st.title("👑 여왕이 되고 싶어")
+        st.title("👑 간택은 제가 하겠습니다")
         st.divider()
 
         st.title("👥 궁중 인물")

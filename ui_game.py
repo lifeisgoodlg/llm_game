@@ -11,7 +11,7 @@ from game_state import (
 from ui_sidebar import render_npc_chat
 from ui_theme import render_stat_plate
 
-APP_TITLE = "👑 여왕이 되고 싶어"
+APP_TITLE = "👑 간택은 제가 하겠습니다, 전하"
 
 
 def render_intro():
@@ -21,7 +21,7 @@ def render_intro():
             "후궁은 중전이 될 수 없습니다. 국법이 그러합니다.\n\n"
             "숙원으로 입궁하여, 그 국법을 넘어서십시오. "
             "중전의 자리에, 나아가 그 위의 자리까지.")
-    st.caption("만약 조선에 여왕이 있었다면 — 이 이야기는 그 가정에서 시작합니다.")
+    st.caption("중전은 거쳐 갈 뿐입니다 — 만약 조선에 여왕이 있었다면.")
     st.write("")
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
