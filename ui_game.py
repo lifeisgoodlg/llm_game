@@ -1,3 +1,5 @@
+import time
+
 import streamlit as st
 from game_logic import get_llm, get_current_event, get_gpt_hint, handle_choice, force_to_end_game, generate_next_event
 from game_state import (
@@ -9,7 +11,7 @@ from game_state import (
     ENDING_FOUND,
 )
 from ui_sidebar import render_npc_chat
-from ui_theme import render_stat_plate
+from ui_theme import render_stat_plate, render_rank_ladder
 
 APP_TITLE = "👑 간택은 제가 하겠습니다, 전하"
 
@@ -33,6 +35,26 @@ def render_intro():
             st.rerun()
 
 
+TYPE_SPEED = 0.009   # 글자당 초. 4~6문장이면 2초 안팎
+
+
+def render_typed(text: str, key: str):
+    """사건 본문을 한 글자씩 흘린다. 같은 사건은 한 번만 친다."""
+    typed = st.session_state.setdefault("typed_events", set())
+
+    if key in typed:
+        st.write(text)
+        return
+
+    placeholder = st.empty()
+    shown = ""
+    for ch in text:
+        shown += ch
+        placeholder.markdown(shown)
+        time.sleep(TYPE_SPEED)
+    typed.add(key)
+
+
 def render_playing():
     if st.session_state.npc_chat_target:
         render_npc_chat()
@@ -54,6 +76,7 @@ def render_playing():
         game_state["권세"],
         game_state["위험도"],
     )
+    render_rank_ladder(game_state["현재품계"])
 
     st.divider()
 
@@ -64,7 +87,7 @@ def render_playing():
     else:
         st.subheader(f"{event.get('제목', '')}")
 
-    st.write(event["상황"])
+    render_typed(event["상황"], key=f"{st.session_state.is_hidden}-{st.session_state.current_event_idx}")
     st.divider()
 
     # 사건에 끼어드는 인물. 이벤트를 만들 때 같이 생성되므로 추가 호출이 없다.

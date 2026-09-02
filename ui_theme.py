@@ -261,6 +261,136 @@ section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"] {
 .stat-value.danger {
     color: #e0705c;
 }
+
+/* ---- 단청 창살 문양 ----
+   조선 궁궐 완자살(卍字) 창살을 옅게 깔아 글자만 있는 화면을 면한다. */
+[data-testid="stAppViewContainer"]::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: .035;
+    background-image:
+        repeating-linear-gradient(0deg, var(--noerok) 0 1px, transparent 1px 44px),
+        repeating-linear-gradient(90deg, var(--noerok) 0 1px, transparent 1px 44px),
+        repeating-linear-gradient(0deg, var(--juchil) 0 1px, transparent 1px 132px),
+        repeating-linear-gradient(90deg, var(--juchil) 0 1px, transparent 1px 132px);
+}
+[data-testid="stAppViewContainer"] > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* ---- 사이드바 제목 ----
+   본문 h1 은 장식선과 큰 글씨가 붙어 있어 사이드바에서 줄바꿈이 난다. */
+section[data-testid="stSidebar"] [data-testid="stHeading"] h1 {
+    display: block;
+    text-align: left;
+    font-size: 1.02rem;
+    letter-spacing: .01em;
+    margin-bottom: .1rem;
+    filter: none;
+}
+section[data-testid="stSidebar"] [data-testid="stHeading"] h1::before,
+section[data-testid="stSidebar"] [data-testid="stHeading"] h1::after {
+    display: none;
+}
+section[data-testid="stSidebar"] [data-testid="stHeading"] h3 {
+    font-size: .95rem;
+}
+
+/* ---- 품계 사다리 ---- */
+.rank-ladder {
+    display: flex;
+    align-items: flex-start;
+    overflow-x: auto;
+    padding: .1rem 0 .35rem;
+    margin-bottom: .2rem;
+}
+.rank-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .3rem;
+    flex: 0 0 auto;
+}
+.rank-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    border: 1px solid var(--noerok-deep);
+    background: transparent;
+}
+.rank-step.done .rank-dot {
+    background: var(--noerok-deep);
+}
+.rank-step.current .rank-dot {
+    width: 13px;
+    height: 13px;
+    background: var(--noerok-light);
+    border-color: var(--noerok-light);
+    box-shadow: 0 0 0 3px rgba(79, 168, 150, .2);
+    animation: rank-pulse 1.9s ease-in-out infinite;
+}
+@keyframes rank-pulse {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(79, 168, 150, .2); }
+    50%      { box-shadow: 0 0 0 6px rgba(79, 168, 150, .05); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .rank-step.current .rank-dot { animation: none; }
+}
+.rank-label {
+    font-size: .62rem;
+    white-space: nowrap;
+    color: var(--hanji-dim);
+    letter-spacing: .02em;
+}
+.rank-step.done .rank-label { color: var(--hanji); }
+.rank-step.current .rank-label {
+    color: var(--noerok-light);
+    font-weight: 800;
+}
+.rank-step.locked .rank-label { opacity: .45; }
+.rank-link {
+    flex: 1 1 auto;
+    min-width: 10px;
+    height: 1px;
+    margin-top: 4px;
+    background: var(--noerok-deep);
+    opacity: .5;
+}
+.rank-link.locked { opacity: .22; }
+/* 후궁은 중전이 될 수 없다. 그 국법을 점선으로 표시한다. */
+.rank-link.gate {
+    height: 0;
+    border-top: 1px dashed var(--juchil);
+    background: none;
+    opacity: .85;
+    min-width: 20px;
+}
+.rank-gate-note {
+    font-size: .58rem;
+    color: var(--juchil);
+    text-align: right;
+    letter-spacing: .04em;
+    margin: -.15rem 0 .2rem;
+    opacity: .8;
+}
+
+/* ---- 문안 촛불 ---- */
+.candles {
+    font-size: .95rem;
+    letter-spacing: .12rem;
+    line-height: 1.4;
+    margin-bottom: .1rem;
+}
+.candles .out { opacity: .18; filter: grayscale(1); }
+.candles-label {
+    font-size: .68rem;
+    color: var(--hanji-dim);
+    font-style: italic;
+}
 </style>
 """
 
@@ -293,5 +423,50 @@ def render_stat_plate(name: str, rank: str, love, power, danger):
             </div>
         </div>
         """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_rank_ladder(current_rank: str):
+    """지나온 품계와 남은 품계, 그리고 국법이 막아선 지점을 한 줄로 보여준다."""
+    from game_state import RANKS, safe_rank_index
+
+    here = safe_rank_index(current_rank)
+    parts = []
+
+    for i, rank in enumerate(RANKS):
+        if i:
+            # 빈(정1품)과 중전 사이가 국법이 막아선 자리다
+            gate = " gate" if RANKS[i] == "중전" else ""
+            locked = " locked" if i > here and not gate else ""
+            parts.append(f'<div class="rank-link{gate}{locked}"></div>')
+
+        if i < here:
+            state = "done"
+        elif i == here:
+            state = "current"
+        else:
+            state = "locked"
+        parts.append(
+            f'<div class="rank-step {state}">'
+            f'<span class="rank-dot"></span>'
+            f'<span class="rank-label">{rank}</span>'
+            f"</div>"
+        )
+
+    st.markdown(
+        '<div class="rank-ladder">' + "".join(parts) + "</div>"
+        '<div class="rank-gate-note">점선 — 후궁은 중전이 될 수 없다는 국법</div>',
+        unsafe_allow_html=True,
+    )
+
+
+def render_audience_candles(left: int, total: int):
+    """남은 문안 횟수를 촛불로 보여준다. 쓴 만큼 꺼진다."""
+    lit = "🕯️" * max(0, left)
+    out = "".join(f'<span class="out">🕯️</span>' for _ in range(max(0, total - left)))
+    st.markdown(
+        f'<div class="candles">{lit}{out}</div>'
+        f'<div class="candles-label">오늘의 문안 {left} / {total}회</div>',
         unsafe_allow_html=True,
     )
