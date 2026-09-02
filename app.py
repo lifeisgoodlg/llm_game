@@ -33,7 +33,6 @@ def init_session():
         "epilogue": None,
         "npc_chat_target": None,
         "npc_chat_history": {},
-        "event_npc_line": None,
         "next_event_ready": True,
     }
     for k, v in defaults.items():
@@ -78,7 +77,6 @@ def start_game():
         "epilogue": None,
         "npc_chat_target": None,
         "npc_chat_history": {},
-        "event_npc_line": None,
         "phase": "playing",
     })
 
