@@ -6,7 +6,7 @@ import streamlit as st
 
 _CSS = """
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Song+Myung&family=Nanum+Myeongjo:wght@400;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Nanum+Myeongjo:wght@400;700;800&display=swap');
 
 /* 조선 단청 팔레트.
    궁궐 단청의 바탕색은 금이 아니라 뇌록(磊碌)이라는 청록이고,
@@ -50,7 +50,7 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
 
 /* ---- Headings ---- */
 [data-testid="stHeading"] h1 {
-    font-family: 'Song Myung', serif;
+    font-family: 'Gowun Batang', 'Nanum Myeongjo', serif;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -223,7 +223,7 @@ section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"] {
     margin-bottom: .7rem;
 }
 .stat-plate-name {
-    font-family: 'Song Myung', serif;
+    font-family: 'Gowun Batang', 'Nanum Myeongjo', serif;
     font-size: 1.3rem;
     color: var(--noerok-light);
 }
