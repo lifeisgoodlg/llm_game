@@ -530,7 +530,7 @@ def set_scene_background(rank: str, hidden: bool = False):
             pointer-events: none;
             z-index: 0;
             background-image:
-                linear-gradient(rgba(13, 23, 25, .87), rgba(13, 23, 25, .95)),
+                linear-gradient(rgba(13, 23, 25, .62), rgba(13, 23, 25, .82)),
                 url("{uri}");
             background-size: cover;
             background-position: center;

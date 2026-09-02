@@ -8,8 +8,9 @@
     python scripts/generate_assets.py --force    전부 다시 생성
     python scripts/generate_assets.py --only 옥좌 사약
 
-배경은 글자 뒤에 깔리므로 어둡고 대비가 낮아야 한다. 프롬프트에서
-그렇게 요구하고, 화면에서도 어두운 그라디언트를 한 겹 더 덮는다.
+배경은 글자 뒤에 깔리지만, 어둡게 만드는 일은 화면의 CSS 가 한다.
+그래야 다시 뽑지 않고 조절할 수 있다. 이미지 자체는 건물이 보일 만큼
+밝게 뽑고, 너무 어두우면 저장할 때 경고한다.
 """
 import argparse
 import base64
@@ -20,7 +21,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from openai import OpenAI
-from PIL import Image
+from PIL import Image, ImageStat
 
 ROOT = Path(__file__).resolve().parent.parent
 BG_DIR = ROOT / "assets" / "bg"
@@ -34,14 +35,20 @@ QUALITY = "medium"
 MAX_WIDTH = 1280
 WEBP_QUALITY = 72
 
+# 어둡게 덮는 일은 CSS 가 한다. 원본이 이보다 어두우면 화면에서 아무것도
+# 보이지 않으므로 경고한다. (0~255 평균 밝기)
+MIN_MEAN_BRIGHTNESS = 30
+
 # 모든 이미지가 한 세트로 보이도록 앞에 똑같이 붙이는 지시.
 # 조선을 명시하지 않으면 중국풍이나 일본풍으로 흐른다.
 STYLE = (
-    "Korean Joseon dynasty palace scene, painted in the style of a dark "
-    "traditional Korean ink-wash painting with muted color washes. "
-    "Deep teal-green (dancheong noerok) and dark brick-red (juchil) accents "
-    "on near-black ink. Night. Very dark, low contrast, heavy shadow, "
-    "empty and still. Wide cinematic composition with open space in the centre. "
+    "Korean Joseon dynasty palace scene, in the style of a moody traditional "
+    "Korean ink-wash painting with muted color washes. "
+    "Deep teal-green (dancheong noerok) and dark brick-red (juchil) accents. "
+    "Moonlit night with warm lantern glow. Atmospheric but clearly legible: "
+    "roof tiles, bracket sets and lattice doors must read plainly, with soft "
+    "mid-tones and gentle highlights. Not pitch black, no crushed shadows. "
+    "Wide cinematic composition with open space in the centre. "
     "Absolutely no people, no faces, no letters, no text, no signage, no watermark. "
     "This is Korean architecture, not Chinese and not Japanese: "
     "gently curved tiled roof, wooden lattice doors, stone terrace, paper windows. "
@@ -86,7 +93,8 @@ def save_webp(raw: bytes, path: Path):
         image = image.resize((MAX_WIDTH, height), Image.LANCZOS)
     path.parent.mkdir(parents=True, exist_ok=True)
     image.save(path, "WEBP", quality=WEBP_QUALITY, method=6)
-    return path.stat().st_size
+    brightness = ImageStat.Stat(image.convert("L")).mean[0]
+    return path.stat().st_size, brightness
 
 
 def generate(client: OpenAI, name: str, scene: str, path: Path) -> bool:
@@ -111,8 +119,9 @@ def generate(client: OpenAI, name: str, scene: str, path: Path) -> bool:
         with urllib.request.urlopen(item.url) as response:
             raw = response.read()
 
-    size = save_webp(raw, path)
-    print(f"저장 ({size // 1024}KB)")
+    size, brightness = save_webp(raw, path)
+    warning = "  ← 너무 어둡습니다. 다시 뽑으세요" if brightness < MIN_MEAN_BRIGHTNESS else ""
+    print(f"저장 ({size // 1024}KB, 밝기 {brightness:.0f}/255){warning}")
     return True
 
 
