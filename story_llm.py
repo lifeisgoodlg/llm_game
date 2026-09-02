@@ -82,6 +82,8 @@ def get_relationship_snapshot(state: dict, npcs: dict) -> str:
 
 def valid_event(data: dict) -> bool:
     """선택지 3개와 판정에 꼭 필요한 필드가 다 왔는지 확인한다."""
+    if not data.get("등장인물") or not data.get("등장대사"):
+        return False
     choices = data.get("선택지", [])
     if len(choices) != 3:
         return False
@@ -164,6 +166,8 @@ gamble:    총애 -15~+35, 권세 -10~+30, 위험도 -5~+35
   "현재품계": "{state['현재품계']}",
   "제목": "사건 제목",
   "상황": "4~6문장. 누가 돕고 방해하는지 드러나야 함.",
+  "등장인물": "이 사건에 끼어드는 인물의 이름. 위 [인물] 목록에 적힌 이름 그대로 쓸 것",
+  "등장대사": "그 인물이 이 사건 한복판에서 던지는 2~3문장. 말투와 속셈이 드러나야 함",
   "선택지": [
     {{
       "choice_id": "strategic",
@@ -201,6 +205,7 @@ gamble:    총애 -15~+35, 권세 -10~+30, 위험도 -5~+35
 주의: 세 선택지 모두 그럴듯할 것 / safe도 손해 가능 / gamble은 대박, 대참사 모두 가능
 우호후궁 관계 높으면 도움 가능, 낮으면 방관
 영의정 관계는 훗날 어느 길을 걷게 될지를 가른다. 이 인물을 얻거나 잃는 선택을 종종 섞을 것
+등장인물은 이 사건에 끼어들 이유가 가장 뚜렷한 사람으로 고를 것. 매번 같은 인물을 쓰지 말 것
 """
 
     data = invoke_json(llm, system, prompt, validate=valid_event)

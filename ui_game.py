@@ -1,6 +1,4 @@
 import streamlit as st
-import random
-from npc_generator import generate_npc_event_appearance
 from game_logic import get_llm, get_current_event, get_gpt_hint, handle_choice, force_to_end_game, generate_next_event
 from game_state import (
     ROUTE_THRONE,
@@ -10,13 +8,10 @@ from game_state import (
     ENDING_THRONE,
     ENDING_FOUND,
 )
-from ui_sidebar import render_npc_chat, display_name
+from ui_sidebar import render_npc_chat
 from ui_theme import render_stat_plate
 
 APP_TITLE = "👑 여왕이 되고 싶어"
-
-# 이벤트에 무작위로 끼어드는 인물들
-EVENT_NPC_POOL = ["왕", "대비", "중전", "경쟁후궁", "영의정"]
 
 
 def render_intro():
@@ -44,7 +39,6 @@ def render_playing():
         return
 
     p = st.session_state.protagonist
-    npcs = st.session_state.npcs
     event = get_current_event()
     game_state = st.session_state.game_state
 
@@ -73,23 +67,13 @@ def render_playing():
     st.write(event["상황"])
     st.divider()
 
-    # 이벤트 중 인물 자동 등장
-    if st.session_state.event_npc_line is None:
-        pool = [k for k in EVENT_NPC_POOL if k in npcs]
-        chosen_key = random.choice(pool)
-        llm = get_llm(0.7)
-        line = generate_npc_event_appearance(
-            llm, display_name(chosen_key), npcs[chosen_key], event["상황"]
-        )
-        st.session_state.event_npc_line = {"name": display_name(chosen_key), "line": line}
-
-    if st.session_state.event_npc_line:
-        npc_line = st.session_state.event_npc_line
+    # 사건에 끼어드는 인물. 이벤트를 만들 때 같이 생성되므로 추가 호출이 없다.
+    if event.get("등장대사"):
         with st.chat_message("assistant", avatar="💬"):
-            st.caption(npc_line["name"])
-            st.write(npc_line["line"])
+            st.caption(event.get("등장인물", ""))
+            st.write(event["등장대사"])
 
-    st.divider()
+        st.divider()
 
     # 상궁의 조언
     if st.session_state.hint:
