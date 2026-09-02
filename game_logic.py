@@ -120,7 +120,6 @@ def handle_choice(event: dict, selected_label: str):
         st.session_state.phase = "result"
 
     st.session_state.hint = None
-    st.session_state.event_npc_line = None
     st.session_state.game_state = game_state
 
 

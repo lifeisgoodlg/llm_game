@@ -1,6 +1,6 @@
+import time
+
 import streamlit as st
-import random
-from npc_generator import generate_npc_event_appearance
 from game_logic import get_llm, get_current_event, get_gpt_hint, handle_choice, force_to_end_game, generate_next_event
 from game_state import (
     ROUTE_THRONE,
@@ -10,13 +10,10 @@ from game_state import (
     ENDING_THRONE,
     ENDING_FOUND,
 )
-from ui_sidebar import render_npc_chat, display_name
-from ui_theme import render_stat_plate
+from ui_sidebar import render_npc_chat
+from ui_theme import render_stat_plate, render_rank_ladder
 
-APP_TITLE = "👑 여왕이 되고 싶어"
-
-# 이벤트에 무작위로 끼어드는 인물들
-EVENT_NPC_POOL = ["왕", "대비", "중전", "경쟁후궁", "영의정"]
+APP_TITLE = "👑 간택은 제가 하겠습니다, 전하"
 
 
 def render_intro():
@@ -26,7 +23,7 @@ def render_intro():
             "후궁은 중전이 될 수 없습니다. 국법이 그러합니다.\n\n"
             "숙원으로 입궁하여, 그 국법을 넘어서십시오. "
             "중전의 자리에, 나아가 그 위의 자리까지.")
-    st.caption("만약 조선에 여왕이 있었다면 — 이 이야기는 그 가정에서 시작합니다.")
+    st.caption("중전은 거쳐 갈 뿐입니다 — 만약 조선에 여왕이 있었다면.")
     st.write("")
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
@@ -38,13 +35,32 @@ def render_intro():
             st.rerun()
 
 
+TYPE_SPEED = 0.009   # 글자당 초. 4~6문장이면 2초 안팎
+
+
+def render_typed(text: str, key: str):
+    """사건 본문을 한 글자씩 흘린다. 같은 사건은 한 번만 친다."""
+    typed = st.session_state.setdefault("typed_events", set())
+
+    if key in typed:
+        st.write(text)
+        return
+
+    placeholder = st.empty()
+    shown = ""
+    for ch in text:
+        shown += ch
+        placeholder.markdown(shown)
+        time.sleep(TYPE_SPEED)
+    typed.add(key)
+
+
 def render_playing():
     if st.session_state.npc_chat_target:
         render_npc_chat()
         return
 
     p = st.session_state.protagonist
-    npcs = st.session_state.npcs
     event = get_current_event()
     game_state = st.session_state.game_state
 
@@ -60,6 +76,7 @@ def render_playing():
         game_state["권세"],
         game_state["위험도"],
     )
+    render_rank_ladder(game_state["현재품계"])
 
     st.divider()
 
@@ -70,26 +87,16 @@ def render_playing():
     else:
         st.subheader(f"{event.get('제목', '')}")
 
-    st.write(event["상황"])
+    render_typed(event["상황"], key=f"{st.session_state.is_hidden}-{st.session_state.current_event_idx}")
     st.divider()
 
-    # 이벤트 중 인물 자동 등장
-    if st.session_state.event_npc_line is None:
-        pool = [k for k in EVENT_NPC_POOL if k in npcs]
-        chosen_key = random.choice(pool)
-        llm = get_llm(0.7)
-        line = generate_npc_event_appearance(
-            llm, display_name(chosen_key), npcs[chosen_key], event["상황"]
-        )
-        st.session_state.event_npc_line = {"name": display_name(chosen_key), "line": line}
-
-    if st.session_state.event_npc_line:
-        npc_line = st.session_state.event_npc_line
+    # 사건에 끼어드는 인물. 이벤트를 만들 때 같이 생성되므로 추가 호출이 없다.
+    if event.get("등장대사"):
         with st.chat_message("assistant", avatar="💬"):
-            st.caption(npc_line["name"])
-            st.write(npc_line["line"])
+            st.caption(event.get("등장인물", ""))
+            st.write(event["등장대사"])
 
-    st.divider()
+        st.divider()
 
     # 상궁의 조언
     if st.session_state.hint:

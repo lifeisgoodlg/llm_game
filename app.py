@@ -11,9 +11,9 @@ from parsing_json import JSONInvokeError
 
 load_dotenv()
 
-APP_TITLE = "👑 여왕이 되고 싶어"
+APP_TITLE = "👑 간택은 제가 하겠습니다, 전하"
 
-st.set_page_config(page_title="여왕이 되고 싶어", page_icon="👑", layout="centered")
+st.set_page_config(page_title="간택은 제가 하겠습니다, 전하", page_icon="👑", layout="centered")
 inject_theme()
 
 
@@ -33,7 +33,6 @@ def init_session():
         "epilogue": None,
         "npc_chat_target": None,
         "npc_chat_history": {},
-        "event_npc_line": None,
         "next_event_ready": True,
     }
     for k, v in defaults.items():
@@ -78,7 +77,6 @@ def start_game():
         "epilogue": None,
         "npc_chat_target": None,
         "npc_chat_history": {},
-        "event_npc_line": None,
         "phase": "playing",
     })
 

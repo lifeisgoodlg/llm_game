@@ -168,18 +168,3 @@ NPC 정보:
         prompt,
         validate=lambda d: "대사" in d,
     )
-
-
-# NPC 이벤트 등장 장면 생성
-def generate_npc_event_appearance(llm: ChatOpenAI, npc_name: str, npc_info: dict, context: str) -> str:
-    prompt = f"""
-다음 인물이 사건 속에 등장하는 장면을 2~3문장으로 작성하세요.
-이름: {npc_name}
-성격: {npc_info.get('성격', '')}
-말투: {npc_info.get('말투', '')}
-상황: {context}
-
-조선 궁중 암투극 분위기로, 짧고 인상적으로 써 주세요.
-"""
-
-    return llm.invoke(prompt).content.strip()
