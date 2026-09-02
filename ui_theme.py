@@ -1,3 +1,7 @@
+import base64
+from functools import lru_cache
+from pathlib import Path
+
 import streamlit as st
 
 _CSS = """
@@ -378,6 +382,16 @@ section[data-testid="stSidebar"] [data-testid="stHeading"] h3 {
     opacity: .8;
 }
 
+/* ---- 엔딩 일러스트 ---- */
+.ending-art {
+    width: 100%;
+    border-radius: 10px;
+    border: 1px solid var(--noerok-deep);
+    display: block;
+    margin: .2rem 0 1rem;
+    box-shadow: 0 6px 26px rgba(0, 0, 0, .5);
+}
+
 /* ---- 문안 촛불 ---- */
 .candles {
     font-size: .95rem;
@@ -468,5 +482,71 @@ def render_audience_candles(left: int, total: int):
     st.markdown(
         f'<div class="candles">{lit}{out}</div>'
         f'<div class="candles-label">오늘의 문안 {left} / {total}회</div>',
+        unsafe_allow_html=True,
+    )
+
+
+# 품계와 루트에 맞는 배경. assets/bg/ 의 파일 이름과 같다.
+SCENE_BY_RANK = {
+    "숙원": "처소", "소원": "처소",
+    "숙용": "후원", "소용": "후원",
+    "숙의": "산실청",
+    "소의": "정전", "귀인": "정전",
+    "빈": "교태전", "중전": "교태전",
+}
+HIDDEN_SCENE = "옥좌"
+
+ASSET_DIR = Path(__file__).resolve().parent / "assets"
+
+
+@lru_cache(maxsize=32)
+def _data_uri(path_str: str) -> str:
+    """이미지를 data URI 로 읽어 둔다. 파일이 없으면 빈 문자열."""
+    path = Path(path_str)
+    if not path.exists():
+        return ""
+    encoded = base64.b64encode(path.read_bytes()).decode()
+    return f"data:image/webp;base64,{encoded}"
+
+
+def scene_name(rank: str, hidden: bool) -> str:
+    return HIDDEN_SCENE if hidden else SCENE_BY_RANK.get(rank, "처소")
+
+
+def set_scene_background(rank: str, hidden: bool = False):
+    """장면 배경을 화면 뒤에 깐다. 에셋이 없으면 창살 문양만 남는다."""
+    uri = _data_uri(str(ASSET_DIR / "bg" / f"{scene_name(rank, hidden)}.webp"))
+    if not uri:
+        return
+
+    # 글자가 읽혀야 하므로 어두운 그라디언트를 한 겹 덮는다
+    st.markdown(
+        f"""
+        <style>
+        [data-testid="stAppViewContainer"]::after {{
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background-image:
+                linear-gradient(rgba(13, 23, 25, .87), rgba(13, 23, 25, .95)),
+                url("{uri}");
+            background-size: cover;
+            background-position: center;
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_ending_art(ending_type: str):
+    """엔딩 일러스트. 없으면 조용히 건너뛴다."""
+    uri = _data_uri(str(ASSET_DIR / "ending" / f"{ending_type}.webp"))
+    if not uri:
+        return
+    st.markdown(
+        f'<img class="ending-art" src="{uri}" alt="">',
         unsafe_allow_html=True,
     )

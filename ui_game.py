@@ -11,7 +11,12 @@ from game_state import (
     ENDING_FOUND,
 )
 from ui_sidebar import render_npc_chat
-from ui_theme import render_stat_plate, render_rank_ladder
+from ui_theme import (
+    render_stat_plate,
+    render_rank_ladder,
+    set_scene_background,
+    render_ending_art,
+)
 
 APP_TITLE = "👑 간택은 제가 하겠습니다, 전하"
 
@@ -68,6 +73,8 @@ def render_playing():
         force_to_end_game()
         st.rerun()
         return
+
+    set_scene_background(game_state["현재품계"], st.session_state.is_hidden)
 
     render_stat_plate(
         p["이름"],
@@ -201,6 +208,8 @@ def render_ending():
     if pending:
         st.write(pending["서사"])
         st.divider()
+
+    render_ending_art(ending_type)
 
     view = ENDING_VIEW.get(ending_type)
     if view:
