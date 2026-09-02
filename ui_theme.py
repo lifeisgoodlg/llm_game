@@ -4,22 +4,24 @@ _CSS = """
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Song+Myung&family=Nanum+Myeongjo:wght@400;700;800&display=swap');
 
+/* 조선 단청 팔레트.
+   궁궐 단청의 바탕색은 금이 아니라 뇌록(磊碌)이라는 청록이고,
+   붉은색은 화려한 주홍이 아니라 주칠(朱漆)의 어두운 벽돌빛이다. */
 :root {
-    --gold: #d4af37;
-    --gold-light: #f3d98b;
-    --gold-deep: #a9812c;
-    --crimson: #7a1620;
-    --crimson-deep: #4a0e14;
-    --bg-black: #170d0a;
-    --bg-panel: #241210;
-    --cream: #f3e6c8;
-    --cream-dim: #cbb98f;
+    --noerok: #4fa896;
+    --noerok-light: #7ec9b8;
+    --noerok-deep: #2f6b60;
+    --juchil: #c8503f;
+    --meok: #0d1719;
+    --panel: #122023;
+    --hanji: #e4ddc9;
+    --hanji-dim: #8fa39f;
 }
 
 html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
     background:
-        radial-gradient(circle at 50% -10%, #2c1512 0%, #170d0a 55%, #0d0705 100%);
-    color: var(--cream);
+        radial-gradient(circle at 50% -10%, #16282b 0%, #0d1719 55%, #070f10 100%);
+    color: var(--hanji);
     font-family: 'Nanum Myeongjo', serif;
 }
 
@@ -35,11 +37,11 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
     width: 10px;
 }
 [data-testid="stAppViewContainer"] ::-webkit-scrollbar-thumb {
-    background: var(--gold-deep);
+    background: var(--noerok-deep);
     border-radius: 6px;
 }
 [data-testid="stAppViewContainer"] ::-webkit-scrollbar-track {
-    background: var(--bg-black);
+    background: var(--meok);
 }
 
 /* ---- Headings ---- */
@@ -52,11 +54,11 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
     text-align: center;
     font-size: 2.15rem;
     letter-spacing: .04em;
-    background: linear-gradient(180deg, var(--gold-light), var(--gold-deep));
+    background: linear-gradient(180deg, var(--noerok-light), var(--noerok-deep));
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    filter: drop-shadow(0 2px 10px rgba(212, 175, 55, .3));
+    filter: drop-shadow(0 2px 10px rgba(79, 168, 150, .3));
     margin-bottom: .3rem;
 }
 [data-testid="stHeading"] h1::before,
@@ -64,25 +66,25 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
     content: '';
     height: 1px;
     width: 36px;
-    background: linear-gradient(90deg, transparent, var(--gold));
+    background: linear-gradient(90deg, transparent, var(--noerok));
     flex-shrink: 0;
 }
 [data-testid="stHeading"] h1::after {
-    background: linear-gradient(90deg, var(--gold), transparent);
+    background: linear-gradient(90deg, var(--noerok), transparent);
 }
 
 [data-testid="stHeading"] h2,
 [data-testid="stHeading"] h3 {
     font-family: 'Nanum Myeongjo', serif;
     font-weight: 800;
-    color: var(--gold-light);
+    color: var(--noerok-light);
     letter-spacing: .02em;
-    border-left: 3px solid var(--crimson);
+    border-left: 3px solid var(--juchil);
     padding-left: .6rem;
 }
 
 [data-testid="stCaptionContainer"] {
-    color: var(--cream-dim) !important;
+    color: var(--hanji-dim) !important;
     font-style: italic;
 }
 
@@ -92,7 +94,7 @@ hr {
     height: 1px;
     margin: 1.6rem 0;
     position: relative;
-    background: linear-gradient(90deg, transparent, var(--gold-deep) 15%, var(--gold-deep) 85%, transparent);
+    background: linear-gradient(90deg, transparent, var(--noerok-deep) 15%, var(--noerok-deep) 85%, transparent);
 }
 hr::before {
     content: '❖';
@@ -101,7 +103,7 @@ hr::before {
     top: 50%;
     transform: translate(-50%, -50%);
     font-size: .8rem;
-    color: var(--gold-light);
+    color: var(--noerok-light);
 }
 
 /* ---- Buttons ---- */
@@ -113,32 +115,32 @@ hr::before {
     transition: all .15s ease;
 }
 button[data-testid="stBaseButton-primary"] {
-    background: linear-gradient(160deg, var(--gold-light), var(--gold-deep));
-    color: #2b1608;
-    border: 1px solid var(--gold-deep);
-    box-shadow: 0 2px 10px rgba(212, 175, 55, .35);
+    background: linear-gradient(160deg, var(--noerok-light), var(--noerok-deep));
+    color: #08191a;
+    border: 1px solid var(--noerok-deep);
+    box-shadow: 0 2px 10px rgba(79, 168, 150, .35);
 }
 button[data-testid="stBaseButton-primary"]:hover {
     filter: brightness(1.08);
-    box-shadow: 0 4px 18px rgba(212, 175, 55, .55);
+    box-shadow: 0 4px 18px rgba(79, 168, 150, .55);
     transform: translateY(-1px);
 }
 button[data-testid="stBaseButton-secondary"] {
-    background: linear-gradient(160deg, #2e1613, #1c0e0c);
-    color: var(--cream);
-    border: 1px solid var(--crimson);
+    background: linear-gradient(160deg, #16292c, #0e1a1c);
+    color: var(--hanji);
+    border: 1px solid var(--noerok-deep);
 }
 button[data-testid="stBaseButton-secondary"]:hover {
-    border-color: var(--gold);
-    color: var(--gold-light);
-    box-shadow: 0 0 14px rgba(212, 175, 55, .25);
+    border-color: var(--noerok);
+    color: var(--noerok-light);
+    box-shadow: 0 0 14px rgba(79, 168, 150, .25);
     transform: translateY(-1px);
 }
 
 /* ---- Sidebar ---- */
 section[data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #241210 0%, #170d0a 100%);
-    border-right: 1px solid var(--gold-deep);
+    background: linear-gradient(180deg, #122023 0%, #0d1719 100%);
+    border-right: 1px solid var(--noerok-deep);
 }
 section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"] {
     padding-top: 1.5rem;
@@ -146,17 +148,17 @@ section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"] {
 
 /* ---- Metrics ---- */
 [data-testid="stMetric"] {
-    background: rgba(122, 22, 32, .18);
-    border: 1px solid var(--gold-deep);
+    background: rgba(79, 168, 150, .08);
+    border: 1px solid var(--noerok-deep);
     border-radius: 8px;
     padding: .6rem .4rem;
     text-align: center;
 }
 [data-testid="stMetricLabel"] {
-    color: var(--cream-dim) !important;
+    color: var(--hanji-dim) !important;
 }
 [data-testid="stMetricValue"] {
-    color: var(--gold-light) !important;
+    color: var(--noerok-light) !important;
     font-family: 'Nanum Myeongjo', serif;
 }
 
@@ -165,24 +167,24 @@ section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"] {
     background: rgba(255, 255, 255, .08) !important;
 }
 [data-testid="stProgress"] div[role="progressbar"] > div > div > div {
-    background: linear-gradient(90deg, var(--crimson), var(--gold)) !important;
+    background: linear-gradient(90deg, var(--juchil), var(--noerok)) !important;
 }
 
 /* ---- Alerts ---- */
 [data-testid="stAlertContainer"] {
     font-family: 'Nanum Myeongjo', serif;
-    background: rgba(36, 18, 16, .75) !important;
+    background: rgba(18, 32, 35, .75) !important;
     border-radius: 8px;
-    border: 1px solid var(--gold-deep);
+    border: 1px solid var(--noerok-deep);
 }
 [data-testid="stAlertContainer"] p {
-    color: var(--cream) !important;
+    color: var(--hanji) !important;
 }
 
 /* ---- Chat messages ---- */
 [data-testid="stChatMessage"] {
-    background: rgba(36, 18, 16, .6);
-    border: 1px solid var(--gold-deep);
+    background: rgba(18, 32, 35, .6);
+    border: 1px solid var(--noerok-deep);
     border-radius: 10px;
     padding: .5rem .75rem;
 }
@@ -190,24 +192,24 @@ section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"] {
 /* ---- Inputs ---- */
 [data-testid="stTextInput"] input,
 [data-testid="stChatInput"] textarea {
-    background: var(--bg-panel) !important;
-    color: var(--cream) !important;
-    border: 1px solid var(--gold-deep) !important;
+    background: var(--panel) !important;
+    color: var(--hanji) !important;
+    border: 1px solid var(--noerok-deep) !important;
     font-family: 'Nanum Myeongjo', serif;
 }
 [data-testid="stTextInput"] input:focus,
 [data-testid="stChatInput"] textarea:focus {
-    border-color: var(--gold) !important;
-    box-shadow: 0 0 0 1px var(--gold) !important;
+    border-color: var(--noerok) !important;
+    box-shadow: 0 0 0 1px var(--noerok) !important;
 }
 
 /* ---- Custom stat plate ---- */
 .stat-plate {
-    border: 1px solid var(--gold-deep);
+    border: 1px solid var(--noerok-deep);
     border-radius: 10px;
     padding: 1rem 1.2rem;
-    background: linear-gradient(160deg, rgba(122, 22, 32, .22), rgba(23, 13, 10, .55));
-    box-shadow: inset 0 0 0 1px rgba(212, 175, 55, .12);
+    background: linear-gradient(160deg, rgba(79, 168, 150, .10), rgba(13, 23, 25, .6));
+    box-shadow: inset 0 0 0 1px rgba(79, 168, 150, .12);
     margin-bottom: .5rem;
 }
 .stat-plate-top {
@@ -219,15 +221,15 @@ section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"] {
 .stat-plate-name {
     font-family: 'Song Myung', serif;
     font-size: 1.3rem;
-    color: var(--gold-light);
+    color: var(--noerok-light);
 }
 .stat-plate-rank {
     font-family: 'Nanum Myeongjo', serif;
     font-weight: 800;
     font-size: 1.05rem;
-    color: var(--cream);
-    background: rgba(212, 175, 55, .15);
-    border: 1px solid var(--gold-deep);
+    color: var(--hanji);
+    background: rgba(79, 168, 150, .15);
+    border: 1px solid var(--noerok-deep);
     border-radius: 999px;
     padding: .15rem .9rem;
 }
@@ -238,7 +240,7 @@ section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"] {
 }
 .stat-item {
     text-align: center;
-    border-left: 1px solid rgba(212, 175, 55, .25);
+    border-left: 1px solid rgba(79, 168, 150, .25);
     display: flex;
     flex-direction: column;
     gap: .15rem;
@@ -248,16 +250,16 @@ section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"] {
 }
 .stat-label {
     font-size: .78rem;
-    color: var(--cream-dim);
+    color: var(--hanji-dim);
     letter-spacing: .05em;
 }
 .stat-value {
     font-size: 1.25rem;
     font-weight: 800;
-    color: var(--gold-light);
+    color: var(--noerok-light);
 }
 .stat-value.danger {
-    color: #e08a7d;
+    color: #e0705c;
 }
 </style>
 """
